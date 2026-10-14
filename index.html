@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J Eberhart · Faturamento</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#F7F4EF; --surface:#FFFFFF; --ink:#1A160F; --ink2:#5A5146;
+  --muted:#9B9284; --line:#E8E1D4;
+  --gold:#B8860B; --gold-deep:#9A6F08;
+  --green:#1C6B3A; --red:#B0341A; --navy:#2A3F5C;
+  --gray-25:#B5AB9C;
+  --r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+.serif{font-family:'Fraunces',serif}
+
+.page{max-width:900px;margin:0 auto;padding:40px 24px 48px}
+
+/* header */
+.head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px}
+.brand{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:600}
+.title{font-family:'Fraunces',serif;font-size:clamp(34px,7vw,52px);font-weight:600;line-height:1;letter-spacing:-.5px}
+.subtitle{font-size:13px;color:var(--muted);margin-top:4px;margin-bottom:24px}
+
+/* chart card */
+.chart-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px 22px 16px;box-shadow:0 1px 2px rgba(0,0,0,.03),0 8px 24px rgba(26,22,15,.05);margin-bottom:22px}
+.chart-box{position:relative;height:300px}
+.chart-legend{display:flex;gap:18px;margin-top:10px;padding-left:4px;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted)}
+.lg-swatch{width:18px;height:3px;border-radius:2px}
+.lg-dot{width:9px;height:9px;border-radius:50%}
+
+/* marcos (linha de 3) */
+.marcos{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:8px;margin-bottom:26px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px 18px;box-shadow:0 1px 2px rgba(0,0,0,.03),0 8px 24px rgba(26,22,15,.05)}
+.marco{text-align:center}
+.marco-lbl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px}
+.marco-val{font-family:'Fraunces',serif;font-weight:600;line-height:1}
+.marco-tag{font-size:11px;color:var(--ink2);margin-top:7px}
+.arrow{color:var(--gold);font-size:22px;font-weight:300}
+.marco.clin .marco-val{color:var(--red)}
+.marco.hoje .marco-val{color:var(--green)}
+.marco.big{background:linear-gradient(135deg,#FBF3DC,#F5E8C4);border-radius:14px;padding:16px 10px;margin:-6px 0}
+.marco.big .marco-val{color:var(--gold-deep);font-size:clamp(38px,8vw,50px)}
+.marco.big .marco-lbl{color:var(--gold-deep)}
+
+/* trimestres pareados */
+.tri-h{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:center;margin-bottom:14px}
+.tri-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tri-col{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 10px 14px;text-align:center}
+.tri-q{font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.tri-delta{font-size:17px;font-weight:700;color:var(--gold-deep);margin-bottom:12px;min-height:22px}
+.tri-delta.muted{color:var(--muted);font-weight:500;font-size:12px}
+.tri-bars{display:flex;align-items:flex-end;justify-content:center;gap:8px;height:80px;margin-bottom:10px}
+.tri-bar{width:26px;border-radius:4px 4px 0 0;position:relative}
+.tri-bar.y25{background:var(--gray-25)}
+.tri-bar.y26{background:var(--gold)}
+.tri-bar.empty{background:repeating-linear-gradient(45deg,#EEE7DA,#EEE7DA 4px,#F7F4EF 4px,#F7F4EF 8px);border:1px dashed var(--line)}
+.tri-vals{display:flex;justify-content:center;gap:8px;font-size:10px}
+.tri-val{width:26px;text-align:center;line-height:1.3}
+.tri-val .yr{display:block;color:var(--muted);font-size:8.5px}
+.tri-val .amt{font-weight:600;color:var(--ink2);font-size:9.5px}
+.tri-val.v25 .amt{color:var(--gray-25)}
+.tri-val.v26 .amt{color:var(--gold-deep)}
+
+.foot{text-align:center;margin-top:30px;font-size:11px;color:var(--muted);letter-spacing:.3px}
+
+@media(max-width:620px){
+  .marcos{grid-template-columns:1fr;gap:4px}
+  .arrow{transform:rotate(90deg);margin:2px 0}
+  .marco.big{margin:6px 0}
+  .tri-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div id="demoBanner" style="display:none;background:#FDF5E6;border:1px solid #F5D680;color:#8A5A00;border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:12.5px;text-align:center">
+    ⚠ Exibindo <b>dados de demonstração</b>. Os números reais ficam apenas no arquivo local <code>dados.json</code> (fora do GitHub).
+  </div>
+
+  <div class="head">
+    <div>
+      <div class="brand">J Eberhart · Dermatologia & Estética</div>
+      <h1 class="title serif">Faturamento</h1>
+    </div>
+  </div>
+  <div class="subtitle">Evolução mensal · janeiro/2025 a setembro/2026</div>
+
+  <!-- GRÁFICO -->
+  <div class="chart-card">
+    <div class="chart-box"><canvas id="chart"></canvas></div>
+    <div class="chart-legend">
+      <div class="lg"><span class="lg-swatch" style="background:var(--gold)"></span>Faturamento mensal</div>
+      <div class="lg"><span class="lg-dot" style="background:var(--red)"></span>Período de ausência</div>
+      <div class="lg"><span class="lg-dot" style="background:var(--green)"></span>Mês mais recente</div>
+    </div>
+  </div>
+
+  <!-- MARCOS -->
+  <div class="marcos">
+    <div class="marco clin">
+      <div class="marco-lbl">Fundo</div>
+      <div class="marco-val" style="font-size:clamp(26px,5vw,34px)">R$ 80k</div>
+      <div class="marco-tag">Q4/25 · ausência</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="marco hoje">
+      <div class="marco-lbl">Hoje</div>
+      <div class="marco-val" style="font-size:clamp(26px,5vw,34px)">R$ 182k</div>
+      <div class="marco-tag">Q3/26 · retorno</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="marco big">
+      <div class="marco-lbl">Crescimento</div>
+      <div class="marco-val">+128%</div>
+      <div class="marco-tag" style="color:var(--gold-deep)">desde o fundo</div>
+    </div>
+  </div>
+
+  <!-- TRIMESTRES PAREADOS -->
+  <div class="tri-h">Trimestre a trimestre · 2025 vs 2026</div>
+  <div class="tri-grid" id="triGrid"></div>
+
+  <div class="foot serif">Base: DRE J Eberhart · jan/2025 – set/2026</div>
+
+</div>
+
+<script>
+const EXEMPLO = "dados.exemplo.json";
+const REAL = "dados.json";
+
+// Tenta carregar os dados reais (dados.json, fora do controle de versão).
+// Se não existir (ex.: no GitHub Pages), cai para dados.exemplo.json e mostra aviso.
+async function boot(){
+  let D, usouExemplo=false;
+  try{
+    const r = await fetch(REAL, {cache:"no-store"});
+    if(!r.ok) throw new Error("sem dados reais");
+    D = await r.json();
+  }catch(e){
+    const r = await fetch(EXEMPLO, {cache:"no-store"});
+    D = await r.json();
+    usouExemplo=true;
+  }
+  if(usouExemplo){
+    const b=document.getElementById("demoBanner");
+    if(b) b.style.display="block";
+  }
+  render(D);
+}
+
+function render(D){
+const BRLk = v => v==null?'—':'R$ '+Math.round(v/1000)+'k';
+const GOLD='#B8860B', RED='#B0341A', GREEN='#1C6B3A', INK='#1A160F';
+const tickC='#9B9284', gridC='rgba(26,22,15,0.05)';
+
+Chart.defaults.font.family='Inter';
+Chart.defaults.color=tickC;
+
+// 21 meses: 2025 (12) + 2026 jan-set (9)
+const labels=[], fat=[], ptColors=[], ptRadius=[];
+const ABR=D.meses_abr;
+for(let i=0;i<12;i++){
+  labels.push(ABR[i]+'/25'); fat.push(D.y2025.fat[i]);
+}
+for(let i=0;i<9;i++){
+  labels.push(ABR[i]+'/26'); fat.push(D.y2026.fat[i]);
+}
+// índices de ausência: out/25=9, nov/25=10, dez/25=11
+const ausIdx=[9,10,11];
+const lastIdx=20; // set/26
+fat.forEach((v,i)=>{
+  if(ausIdx.includes(i)){ ptColors.push(RED); ptRadius.push(5); }
+  else if(i===lastIdx){ ptColors.push(GREEN); ptRadius.push(6); }
+  else { ptColors.push(GOLD); ptRadius.push(2.5); }
+});
+
+// segment coloring: ausência em vermelho suave
+const ausShade={
+  id:'ausShade',
+  beforeDraw(chart){
+    const {ctx,chartArea,scales}=chart;
+    if(!chartArea)return;
+    const x=scales.x;
+    const half=(x.getPixelForValue(1)-x.getPixelForValue(0))/2;
+    const s=x.getPixelForValue(9)-half;
+    const e=x.getPixelForValue(11)+half;
+    ctx.save();
+    ctx.fillStyle='rgba(176,52,26,0.06)';
+    ctx.fillRect(s,chartArea.top,e-s,chartArea.bottom-chartArea.top);
+    // label
+    ctx.fillStyle='rgba(176,52,26,0.7)';
+    ctx.font='600 10px Inter';
+    ctx.textAlign='center';
+    ctx.fillText('ausência',(s+e)/2,chartArea.top+14);
+    ctx.restore();
+  }
+};
+
+new Chart(document.getElementById('chart'),{
+  type:'line',
+  data:{labels,datasets:[{
+    label:'Faturamento',data:fat,
+    borderColor:GOLD,
+    backgroundColor:(ctx)=>{
+      const {chart}=ctx; const {ctx:c,chartArea}=chart;
+      if(!chartArea)return 'rgba(184,134,11,0.06)';
+      const g=c.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
+      g.addColorStop(0,'rgba(184,134,11,0.16)');
+      g.addColorStop(1,'rgba(184,134,11,0.01)');
+      return g;
+    },
+    borderWidth:2.5,tension:.35,fill:true,
+    pointBackgroundColor:ptColors,pointBorderColor:ptColors,
+    pointRadius:ptRadius,pointHoverRadius:7,
+    segment:{
+      borderColor: c=>{
+        // após o fundo (idx>=11) vai ganhando tom de recuperação
+        return c.p1DataIndex>=11 ? '#C89A2B' : GOLD;
+      }
+    }
+  }]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:INK,titleColor:'#E8C86A',bodyColor:'#F3EEE4',
+        padding:11,cornerRadius:8,displayColors:false,
+        titleFont:{family:'Fraunces',size:13},bodyFont:{size:12},
+        callbacks:{label:c=>'R$ '+Math.round(c.raw).toLocaleString('pt-BR')}
+      }
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{color:tickC,font:{size:9.5},maxRotation:0,autoSkip:true,maxTicksLimit:11}},
+      y:{grid:{color:gridC},border:{display:false},ticks:{color:tickC,callback:BRLk},beginAtZero:true}
+    }
+  },
+  plugins:[ausShade]
+});
+
+// --- TRIMESTRES ---
+const tri=D.tri;
+const maxFat=Math.max(...tri['2025'].fat, ...tri['2026'].fat.filter(x=>x));
+const grid=document.getElementById('triGrid');
+const QS=['Q1','Q2','Q3','Q4'];
+let h='';
+for(let i=0;i<4;i++){
+  const v25=tri['2025'].fat[i], v26=tri['2026'].fat[i];
+  const h25=Math.round(v25/maxFat*76);
+  let deltaHtml, bar26, vals26;
+  if(v26==null){
+    deltaHtml='<div class="tri-delta muted">em curso</div>';
+    bar26='<div class="tri-bar empty" style="height:30px"></div>';
+    vals26='<div class="tri-val v26"><span class="amt">—</span><span class="yr">2026</span></div>';
+  } else {
+    const dv=(v26/v25-1)*100;
+    const sign=dv>=0?'+':'';
+    deltaHtml=`<div class="tri-delta">${sign}${dv.toFixed(0)}%</div>`;
+    const h26=Math.round(v26/maxFat*76);
+    bar26=`<div class="tri-bar y26" style="height:${h26}px"></div>`;
+    vals26=`<div class="tri-val v26"><span class="amt">${BRLk(v26)}</span><span class="yr">2026</span></div>`;
+  }
+  h+=`<div class="tri-col">
+    <div class="tri-q">${QS[i]}</div>
+    ${deltaHtml}
+    <div class="tri-bars">
+      <div class="tri-bar y25" style="height:${h25}px"></div>
+      ${bar26}
+    </div>
+    <div class="tri-vals">
+      <div class="tri-val v25"><span class="amt">${BRLk(v25)}</span><span class="yr">2025</span></div>
+      ${vals26}
+    </div>
+  </div>`;
+}
+grid.innerHTML=h;
+
+}
+
+boot();
+</script>
+</body>
+</html>

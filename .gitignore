@@ -1,0 +1,7 @@
+# Dados financeiros reais — NUNCA versionar
+dados.json
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
