@@ -79,9 +79,6 @@ body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webki
 </head>
 <body>
 <div class="page">
-  <div id="demoBanner" style="display:none;background:#FDF5E6;border:1px solid #F5D680;color:#8A5A00;border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:12.5px;text-align:center">
-    ⚠ Exibindo <b>dados de demonstração</b>. Os números reais ficam apenas no arquivo local <code>dados.json</code> (fora do GitHub).
-  </div>
 
   <div class="head">
     <div>
@@ -131,30 +128,7 @@ body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webki
 </div>
 
 <script>
-const EXEMPLO = "dados.exemplo.json";
-const REAL = "dados.json";
-
-// Tenta carregar os dados reais (dados.json, fora do controle de versão).
-// Se não existir (ex.: no GitHub Pages), cai para dados.exemplo.json e mostra aviso.
-async function boot(){
-  let D, usouExemplo=false;
-  try{
-    const r = await fetch(REAL, {cache:"no-store"});
-    if(!r.ok) throw new Error("sem dados reais");
-    D = await r.json();
-  }catch(e){
-    const r = await fetch(EXEMPLO, {cache:"no-store"});
-    D = await r.json();
-    usouExemplo=true;
-  }
-  if(usouExemplo){
-    const b=document.getElementById("demoBanner");
-    if(b) b.style.display="block";
-  }
-  render(D);
-}
-
-function render(D){
+const D = {"meses_abr": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"], "y2025": {"fat": [35272, 88428, 46451, 44790, 57039, 54924, 57574, 78317, 47992, 8495, 16095, 55303], "lucro": [908, 56198, 10978, 16369, 25017, 33064, 28989, 48442, 3083, -18490, -11979, 29159], "caixa": [-11820, 2501, 3848, 17294, -5052, 30560, -41544, -3369, -3961, 10282, -13945, 4013]}, "y2026": {"fat": [25746, 22402, 48705, 55423, 39771, 60045, 71023, 34463, 76393, null, null, null], "lucro": [-121, 6530, 19153, 24315, 8514, 23368, 29386, 6104, 23774, null, null, null], "caixa": [674, -858, 7362, 5816, -9504, -67, 19591, -25558, 13774, null, null, null]}, "jansete": {"2025": {"fat": 510787, "lucro": 223048, "caixa": -11543}, "2026": {"fat": 433971, "lucro": 141023, "caixa": 11230}}, "tri": {"labels": ["Q1", "Q2", "Q3", "Q4"], "2025": {"fat": [170151, 156753, 183883, 79893], "lucro": [68084, 74450, 80514, -1310]}, "2026": {"fat": [96853, 155239, 181879, null], "lucro": [25562, 56197, 59264, null]}}, "total2025": {"fat": 590680, "lucro": 221738, "caixa": -11193}};
 const BRLk = v => v==null?'—':'R$ '+Math.round(v/1000)+'k';
 const GOLD='#B8860B', RED='#B0341A', GREEN='#1C6B3A', INK='#1A160F';
 const tickC='#9B9284', gridC='rgba(26,22,15,0.05)';
@@ -280,10 +254,6 @@ for(let i=0;i<4;i++){
   </div>`;
 }
 grid.innerHTML=h;
-
-}
-
-boot();
 </script>
 </body>
 </html>
